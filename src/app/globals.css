@@ -1,0 +1,74 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Merriweather:ital,wght@0,300;0,400;0,700;1,300&family=Roboto:wght@300;400;500;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  /* Light mode brand palette */
+  --brand-bg: #F7FAFF;
+  --brand-surface: #FFFFFF;
+  --brand-surface-elevated: #FFFFFF;
+  --brand-primary: #2563EB;
+  --brand-primary-hover: #1D4ED8;
+  --brand-secondary: #1E40AF;
+  --brand-text: #0B132B;
+  --brand-muted: #64748B;
+  --brand-border: #E2E8F0;
+  --font-inter: 'Inter', system-ui, sans-serif;
+}
+
+.dark {
+  /* Dark mode brand palette */
+  --brand-bg: #0B132B;
+  --brand-surface: #132238;
+  --brand-surface-elevated: #182A45;
+  --brand-primary: #3B82F6;
+  --brand-primary-hover: #60A5FA;
+  --brand-secondary: #60A5FA;
+  --brand-text: #F8FAFC;
+  --brand-muted: #94A3B8;
+  --brand-border: #1E293B;
+}
+
+body {
+  background-color: var(--brand-bg);
+  color: var(--brand-text);
+  font-family: var(--font-inter);
+  min-height: 100vh;
+  margin: 0;
+  padding: 0;
+  transition: background-color 0.2s ease, color 0.2s ease;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Custom subtle scrollbars */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(100, 116, 139, 0.25);
+  border-radius: 9999px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(100, 116, 139, 0.45);
+}
+
+/* Print Styles */
+@media print {
+  body {
+    background: #ffffff !important;
+    color: #000000 !important;
+  }
+  .no-print {
+    display: none !important;
+  }
+}
