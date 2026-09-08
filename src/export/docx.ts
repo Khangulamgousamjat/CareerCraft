@@ -6,11 +6,23 @@ import {
   AlignmentType,
   BorderStyle,
   convertInchesToTwip,
+  ImageRun,
 } from "docx";
 import { Resume } from "@/types/resume";
 
 export interface DocxExportOptions {
   filename?: string;
+}
+
+function dataUrlToUint8Array(dataUrl: string): Uint8Array {
+  const base64 = dataUrl.split(",")[1];
+  const binaryString = atob(base64);
+  const len = binaryString.length;
+  const bytes = new Uint8Array(len);
+  for (let i = 0; i < len; i++) {
+    bytes[i] = binaryString.charCodeAt(i);
+  }
+  return bytes;
 }
 
 /**
@@ -64,7 +76,32 @@ export async function exportToDocx(
     });
   };
 
-  // 1. Header: Candidate Name
+  // 1. Header: Profile Photo (if present)
+  if (personal.photo?.dataUrl) {
+    try {
+      const photoBytes = dataUrlToUint8Array(personal.photo.dataUrl);
+      paragraphs.push(
+        new Paragraph({
+          alignment: AlignmentType.CENTER,
+          spacing: { after: 40 },
+          children: [
+            new ImageRun({
+              data: photoBytes,
+              type: "png",
+              transformation: {
+                width: 75,
+                height: 75,
+              },
+            }),
+          ],
+        })
+      );
+    } catch (err) {
+      console.warn("Failed to embed photo in DOCX:", err);
+    }
+  }
+
+  // Candidate Name
   paragraphs.push(
     new Paragraph({
       alignment: AlignmentType.CENTER,

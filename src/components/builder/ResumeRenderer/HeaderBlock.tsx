@@ -30,6 +30,7 @@ export function HeaderBlock({ personal, formatting, onSelectField }: HeaderBlock
   const { accentColor, headingColor, bodyColor, textOverrides } = formatting;
   const nameOverride = textOverrides?.["personal.name"];
   const titleOverride = textOverrides?.["personal.title"];
+  const hasPhoto = Boolean(personal.photo?.dataUrl);
 
   const items = [
     personal.phone && { text: personal.phone, icon: <Phone className="w-2.5 h-2.5 inline mr-1" /> },
@@ -40,61 +41,101 @@ export function HeaderBlock({ personal, formatting, onSelectField }: HeaderBlock
     personal.github && { text: personal.github, icon: <GithubIcon className="w-2.5 h-2.5 inline mr-1" /> },
   ].filter(Boolean) as { text: string; icon: React.ReactNode }[];
 
+  const nameElement = (
+    <h1
+      onClick={() => onSelectField?.("personal.name")}
+      className="font-bold tracking-tight leading-none cursor-pointer transition-opacity hover:opacity-90"
+      style={{
+        color: nameOverride?.color || headingColor,
+        fontSize: `${(formatting.baseFontSize || 10) * 1.85 + (nameOverride?.fontSizeDelta || 0)}pt`,
+        fontWeight: nameOverride?.bold !== undefined ? (nameOverride.bold ? 800 : 400) : 800,
+        fontStyle: nameOverride?.italic ? "italic" : "normal",
+        textDecoration: nameOverride?.underline ? "underline" : "none",
+        textAlign: hasPhoto ? (nameOverride?.alignment || "left") : (nameOverride?.alignment || "center"),
+      }}
+    >
+      {personal.name || "Your Name"}
+    </h1>
+  );
+
+  const titleElement = personal.title ? (
+    <p
+      onClick={() => onSelectField?.("personal.title")}
+      className="font-semibold tracking-wide mt-1 cursor-pointer"
+      style={{
+        color: titleOverride?.color || accentColor,
+        fontSize: `${(formatting.baseFontSize || 10) * 1.05 + (titleOverride?.fontSizeDelta || 0)}pt`,
+        fontWeight: titleOverride?.bold !== undefined ? (titleOverride.bold ? 700 : 400) : 600,
+        fontStyle: titleOverride?.italic ? "italic" : "normal",
+        textDecoration: titleOverride?.underline ? "underline" : "none",
+        textAlign: hasPhoto ? (titleOverride?.alignment || "left") : (titleOverride?.alignment || "center"),
+      }}
+    >
+      {personal.title}
+    </p>
+  ) : null;
+
+  const contactElement = items.length > 0 ? (
+    <div
+      className={`flex flex-wrap items-center gap-x-2 gap-y-0.5 mt-1.5 ${
+        hasPhoto ? "justify-start" : "justify-center"
+      }`}
+      style={{
+        color: bodyColor,
+        fontSize: `${(formatting.baseFontSize || 10) * 0.85}pt`,
+      }}
+    >
+      {items.map((item, idx) => (
+        <React.Fragment key={idx}>
+          <span className="inline-flex items-center">
+            {item.icon}
+            {item.text}
+          </span>
+          {idx < items.length - 1 && <span className="opacity-40">•</span>}
+        </React.Fragment>
+      ))}
+    </div>
+  ) : null;
+
   return (
-    <header className="border-b pb-2.5 mb-2.5 text-center" style={{ borderColor: accentColor }}>
-      {/* Candidate Name */}
-      <h1
-        onClick={() => onSelectField?.("personal.name")}
-        className="font-bold tracking-tight leading-none cursor-pointer transition-opacity hover:opacity-90"
-        style={{
-          color: nameOverride?.color || headingColor,
-          fontSize: `${(formatting.baseFontSize || 10) * 1.85 + (nameOverride?.fontSizeDelta || 0)}pt`,
-          fontWeight: nameOverride?.bold !== undefined ? (nameOverride.bold ? 800 : 400) : 800,
-          fontStyle: nameOverride?.italic ? "italic" : "normal",
-          textDecoration: nameOverride?.underline ? "underline" : "none",
-          textAlign: nameOverride?.alignment || "center",
-        }}
-      >
-        {personal.name || "Your Name"}
-      </h1>
+    <header
+      className={`border-b pb-2.5 mb-2.5 ${hasPhoto ? "text-left" : "text-center"}`}
+      style={{ borderColor: accentColor }}
+    >
+      {hasPhoto ? (
+        /* Layout With Profile Photo */
+        <div className="flex items-center gap-4">
+          {/* Circular Headshot */}
+          <div
+            className="shrink-0 rounded-full overflow-hidden border-2 shadow-xs"
+            style={{
+              width: "78px",
+              height: "78px",
+              borderColor: accentColor,
+            }}
+          >
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src={personal.photo!.dataUrl}
+              alt={personal.name || "Profile headshot"}
+              className="w-full h-full object-cover rounded-full"
+            />
+          </div>
 
-      {/* Professional Title */}
-      {personal.title && (
-        <p
-          onClick={() => onSelectField?.("personal.title")}
-          className="font-semibold tracking-wide mt-1 cursor-pointer"
-          style={{
-            color: titleOverride?.color || accentColor,
-            fontSize: `${(formatting.baseFontSize || 10) * 1.05 + (titleOverride?.fontSizeDelta || 0)}pt`,
-            fontWeight: titleOverride?.bold !== undefined ? (titleOverride.bold ? 700 : 400) : 600,
-            fontStyle: titleOverride?.italic ? "italic" : "normal",
-            textDecoration: titleOverride?.underline ? "underline" : "none",
-            textAlign: titleOverride?.alignment || "center",
-          }}
-        >
-          {personal.title}
-        </p>
-      )}
-
-      {/* Contact Details Bar */}
-      {items.length > 0 && (
-        <div
-          className="flex flex-wrap items-center justify-center gap-x-2 gap-y-0.5 mt-1.5"
-          style={{
-            color: bodyColor,
-            fontSize: `${(formatting.baseFontSize || 10) * 0.85}pt`,
-          }}
-        >
-          {items.map((item, idx) => (
-            <React.Fragment key={idx}>
-              <span className="inline-flex items-center">
-                {item.icon}
-                {item.text}
-              </span>
-              {idx < items.length - 1 && <span className="opacity-40">•</span>}
-            </React.Fragment>
-          ))}
+          {/* Candidate Text Block */}
+          <div className="flex-1 min-w-0">
+            {nameElement}
+            {titleElement}
+            {contactElement}
+          </div>
         </div>
+      ) : (
+        /* Original Centered Layout (No Photo) - Exactly as before */
+        <>
+          {nameElement}
+          {titleElement}
+          {contactElement}
+        </>
       )}
     </header>
   );

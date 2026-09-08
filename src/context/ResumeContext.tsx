@@ -30,7 +30,7 @@ import { getAutoFitFormatting } from "@/utils/pagination";
 export interface ResumeContextType {
   resume: Resume;
   setResume: React.Dispatch<React.SetStateAction<Resume>>;
-  updatePersonal: (field: keyof PersonalInfo, value: string) => void;
+  updatePersonal: <K extends keyof PersonalInfo>(field: K, value: PersonalInfo[K]) => void;
   updateSummary: (summary: string) => void;
   updateSkills: (skills: SkillCategory[]) => void;
   updateExperience: (experience: ExperienceItem[]) => void;
@@ -99,15 +99,18 @@ export function ResumeProvider({ children }: { children: React.ReactNode }) {
     };
   }, [resume, isInitialized]);
 
-  const updatePersonal = useCallback((field: keyof PersonalInfo, value: string) => {
-    setResume((prev) => ({
-      ...prev,
-      personal: {
-        ...prev.personal,
-        [field]: value,
-      },
-    }));
-  }, []);
+  const updatePersonal = useCallback(
+    <K extends keyof PersonalInfo>(field: K, value: PersonalInfo[K]) => {
+      setResume((prev) => ({
+        ...prev,
+        personal: {
+          ...prev.personal,
+          [field]: value,
+        },
+      }));
+    },
+    []
+  );
 
   const updateSummary = useCallback((summary: string) => {
     setResume((prev) => ({ ...prev, summary }));

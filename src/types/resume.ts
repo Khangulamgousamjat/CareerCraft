@@ -7,6 +7,9 @@ export interface PersonalInfo {
   github?: string;
   portfolio?: string;
   location?: string;
+  photo?: {
+    dataUrl: string;
+  };
 }
 
 export interface SkillCategory {
