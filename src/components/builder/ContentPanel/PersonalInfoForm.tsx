@@ -306,7 +306,7 @@ export function PersonalInfoForm() {
             value={personal.name}
             onChange={(e) => updatePersonal("name", e.target.value)}
             onFocus={() => setFocusedFieldId("personal.name")}
-            placeholder="e.g. Alex Morgan"
+            placeholder="e.g. Rohit Sharma"
             className="w-full text-xs px-3 py-2 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
         </div>
@@ -320,7 +320,7 @@ export function PersonalInfoForm() {
             value={personal.title}
             onChange={(e) => updatePersonal("title", e.target.value)}
             onFocus={() => setFocusedFieldId("personal.title")}
-            placeholder="e.g. Senior Full-Stack Engineer"
+            placeholder="e.g. Lead Technical Architect"
             className="w-full text-xs px-3 py-2 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
         </div>
