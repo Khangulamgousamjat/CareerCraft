@@ -166,11 +166,18 @@ export function ResumeProvider({ children }: { children: React.ReactNode }) {
   );
 
   const autoFit = useCallback(() => {
+    const measuredHeight =
+      contentHeight > 0
+        ? contentHeight
+        : resumeNodeRef.current
+        ? resumeNodeRef.current.scrollHeight - 48
+        : 0;
+
     setResume((prev) => ({
       ...prev,
-      formatting: getAutoFitFormatting(prev.formatting),
+      formatting: getAutoFitFormatting(prev.formatting, measuredHeight),
     }));
-  }, []);
+  }, [contentHeight]);
 
   const clearResume = useCallback(() => {
     const blankResume: Resume = {

@@ -122,8 +122,8 @@ export function HeaderBlock({ personal, formatting, onSelectField }: HeaderBlock
                 : "rounded-full"
             }`}
             style={{
-              width: personal.photo?.shape === "rectangle" ? "74px" : "78px",
-              height: personal.photo?.shape === "rectangle" ? "88px" : "78px",
+              width: personal.photo?.shape === "rectangle" ? "76px" : "78px",
+              height: personal.photo?.shape === "rectangle" ? "95px" : "78px",
               borderColor: accentColor,
             }}
           >

@@ -116,12 +116,16 @@ export function PersonalInfoForm() {
                 fileInputRef.current?.click();
               }
             }}
+            style={{
+              width: personal.photo?.shape === "rectangle" ? "76px" : "80px",
+              height: personal.photo?.shape === "rectangle" ? "95px" : "80px",
+            }}
             className={`relative group border-2 border-dashed flex flex-col items-center justify-center cursor-pointer transition-all duration-150 overflow-hidden shrink-0 shadow-2xs ${
               personal.photo?.shape === "rounded"
-                ? "w-20 h-20 rounded-2xl"
+                ? "rounded-2xl"
                 : personal.photo?.shape === "rectangle"
-                ? "w-18 h-22 rounded-xl"
-                : "w-20 h-20 rounded-full"
+                ? "rounded-xl"
+                : "rounded-full"
             } ${
               isDraggingOver
                 ? "border-blue-500 bg-blue-50 dark:bg-blue-950/60 scale-105"
@@ -283,7 +287,7 @@ export function PersonalInfoForm() {
       <PhotoCropModal
         isOpen={isCropOpen}
         imageSrc={rawImageSrc}
-        initialShape={personal.photo?.shape || "circle"}
+        initialShape={personal.photo?.shape || "rectangle"}
         onClose={() => {
           setIsCropOpen(false);
           setRawImageSrc(null);

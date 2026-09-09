@@ -1,4 +1,4 @@
-export type PhotoShape = "circle" | "rounded" | "rectangle";
+export type PhotoShape = "rectangle" | "circle" | "rounded" | "original";
 
 export interface PersonalInfo {
   name: string;
