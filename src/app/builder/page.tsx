@@ -44,7 +44,7 @@ function BuilderMain() {
   const { showToast } = useToast();
 
   const [showClearModal, setShowClearModal] = useState(false);
-  const [previewScale, setPreviewScale] = useState(0.85);
+  const [previewScale, setPreviewScale] = useState(0.75);
   const [mobileTab, setMobileTab] = useState<"form" | "preview" | "design">("preview");
 
   const centerContainerRef = useRef<HTMLDivElement | null>(null);
@@ -59,7 +59,7 @@ function BuilderMain() {
           const calculated = Math.min(1, Math.max(0.35, containerWidth / a4Width));
           setPreviewScale(calculated);
         } else {
-          setPreviewScale(0.85); // Comfortable default on desktop
+          setPreviewScale(0.75); // Comfortable default on desktop (75%)
         }
       }
     };
@@ -278,8 +278,8 @@ function BuilderMain() {
               </button>
               <button
                 type="button"
-                onClick={() => setPreviewScale(0.85)}
-                title="Reset Zoom"
+                onClick={() => setPreviewScale(0.75)}
+                title="Reset Zoom (75%)"
                 className="p-1 rounded hover:bg-slate-200 dark:hover:bg-slate-800 transition-colors cursor-pointer ml-1"
               >
                 <Maximize2 className="w-3.5 h-3.5" />
