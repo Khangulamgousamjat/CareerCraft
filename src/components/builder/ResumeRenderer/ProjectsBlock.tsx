@@ -87,7 +87,9 @@ export function ProjectsBlock({ projects, formatting, onSelectField }: ProjectsB
                     fontSize: `${(formatting.baseFontSize || 10) * 0.92}pt`,
                     lineHeight: lineSpacing,
                     color: override?.color || bodyColor,
-                    textAlign: override?.alignment || "left",
+                    textAlign: override?.alignment || formatting.bodyAlignment || "justify",
+                    textJustify: "inter-word",
+                    textAlignLast: "left",
                   }}
                 >
                   {proj.bullets

@@ -76,6 +76,7 @@ export interface ResumeFormatting {
   pageSize: "A4";
   lineSpacing?: number; // scale multiplier e.g. 1.25
   sectionSpacing?: number; // px margin bottom e.g. 12
+  bodyAlignment?: TextAlignment; // defaults to "justify"
   textOverrides?: Record<string, TextFormatOverride>;
 }
 

@@ -85,6 +85,9 @@ export function EducationBlock({ education, formatting, onSelectField }: Educati
                     fontSize: `${(formatting.baseFontSize || 10) * 0.88}pt`,
                     lineHeight: lineSpacing,
                     color: override?.color || bodyColor,
+                    textAlign: override?.alignment || formatting.bodyAlignment || "justify",
+                    textJustify: "inter-word",
+                    textAlignLast: "left",
                   }}
                 >
                   {edu.details}

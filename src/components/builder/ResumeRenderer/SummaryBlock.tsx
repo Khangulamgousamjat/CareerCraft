@@ -37,7 +37,9 @@ export function SummaryBlock({ summary, formatting, onSelectField }: SummaryBloc
           fontWeight: override?.bold ? 700 : 400,
           fontStyle: override?.italic ? "italic" : "normal",
           textDecoration: override?.underline ? "underline" : "none",
-          textAlign: override?.alignment || "left",
+          textAlign: override?.alignment || formatting.bodyAlignment || "justify",
+          textJustify: "inter-word",
+          textAlignLast: "left",
         }}
       >
         {summary}

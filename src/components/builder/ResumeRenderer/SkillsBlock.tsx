@@ -45,7 +45,8 @@ export function SkillsBlock({ skills, formatting, onSelectField }: SkillsBlockPr
               onClick={() => onSelectField?.(fieldId)}
               className="flex items-baseline gap-1.5 cursor-pointer"
               style={{
-                textAlign: override?.alignment || "left",
+                textAlign: override?.alignment || formatting.bodyAlignment || "justify",
+                textJustify: "inter-word",
               }}
             >
               <span

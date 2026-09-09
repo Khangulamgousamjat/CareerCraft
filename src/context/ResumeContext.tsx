@@ -206,6 +206,7 @@ export function ResumeProvider({ children }: { children: React.ReactNode }) {
         pageSize: "A4",
         lineSpacing: 1.25,
         sectionSpacing: 10,
+        bodyAlignment: "justify",
         textOverrides: {},
       },
     };

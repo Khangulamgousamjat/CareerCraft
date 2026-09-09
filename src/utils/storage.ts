@@ -118,6 +118,7 @@ export const DEFAULT_RESUME: Resume = {
     pageSize: "A4",
     lineSpacing: 1.25,
     sectionSpacing: 10,
+    bodyAlignment: "justify",
     textOverrides: {},
   },
 };

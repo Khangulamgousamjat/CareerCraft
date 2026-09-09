@@ -4,7 +4,7 @@ import React from "react";
 import { useResume } from "@/context/ResumeContext";
 import { ColorPicker } from "./ColorPicker";
 import { FONT_OPTIONS } from "@/utils/formatting";
-import { Sliders, Lock, Type } from "lucide-react";
+import { Sliders, Lock, Type, AlignJustify, AlignLeft } from "lucide-react";
 
 export function ResumeDesignPanel() {
   const { resume, updateFormatting } = useResume();
@@ -40,6 +40,39 @@ export function ResumeDesignPanel() {
             </option>
           ))}
         </select>
+      </div>
+
+      {/* Body Text Alignment */}
+      <div>
+        <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
+          Text Alignment
+        </label>
+        <div className="grid grid-cols-2 gap-2 p-1 bg-slate-100 dark:bg-slate-800 rounded-lg text-xs">
+          <button
+            type="button"
+            onClick={() => updateFormatting({ bodyAlignment: "justify" })}
+            className={`flex items-center justify-center gap-1.5 py-1.5 rounded-md font-semibold transition-all cursor-pointer ${
+              (formatting.bodyAlignment || "justify") === "justify"
+                ? "bg-white dark:bg-slate-900 text-blue-600 dark:text-blue-400 shadow-2xs"
+                : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200"
+            }`}
+          >
+            <AlignJustify className="w-3.5 h-3.5" />
+            <span>Justified</span>
+          </button>
+          <button
+            type="button"
+            onClick={() => updateFormatting({ bodyAlignment: "left" })}
+            className={`flex items-center justify-center gap-1.5 py-1.5 rounded-md font-semibold transition-all cursor-pointer ${
+              formatting.bodyAlignment === "left"
+                ? "bg-white dark:bg-slate-900 text-blue-600 dark:text-blue-400 shadow-2xs"
+                : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200"
+            }`}
+          >
+            <AlignLeft className="w-3.5 h-3.5" />
+            <span>Left-Aligned</span>
+          </button>
+        </div>
       </div>
 
       {/* Document Colors Grid */}

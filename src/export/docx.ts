@@ -79,6 +79,10 @@ export async function exportToDocx(
   // 1. Header: Profile Photo (if present)
   const hasPhoto = Boolean(personal.photo?.dataUrl);
   const textAlignment = hasPhoto ? AlignmentType.LEFT : AlignmentType.CENTER;
+  const bodyAlign =
+    (formatting.bodyAlignment || "justify") === "justify"
+      ? AlignmentType.JUSTIFIED
+      : AlignmentType.LEFT;
 
   // 1. Header: Profile Photo (if present, aligned to the right side)
   if (personal.photo?.dataUrl) {
@@ -182,6 +186,7 @@ export async function exportToDocx(
     paragraphs.push(createSectionHeading("Professional Summary"));
     paragraphs.push(
       new Paragraph({
+        alignment: bodyAlign,
         spacing: { after: 100 },
         children: [
           new TextRun({
@@ -272,6 +277,7 @@ export async function exportToDocx(
             paragraphs.push(
               new Paragraph({
                 bullet: { level: 0 },
+                alignment: bodyAlign,
                 spacing: { after: 20 },
                 children: [
                   new TextRun({
@@ -324,6 +330,7 @@ export async function exportToDocx(
             paragraphs.push(
               new Paragraph({
                 bullet: { level: 0 },
+                alignment: bodyAlign,
                 spacing: { after: 20 },
                 children: [
                   new TextRun({
@@ -375,6 +382,7 @@ export async function exportToDocx(
       if (edu.details) {
         paragraphs.push(
           new Paragraph({
+            alignment: bodyAlign,
             spacing: { after: 30 },
             children: [
               new TextRun({
