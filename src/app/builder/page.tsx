@@ -361,21 +361,23 @@ function BuilderMain() {
       </Modal>
 
       {/* Bottom Footer Attribution */}
-      <footer className="w-full border-t border-slate-200/80 dark:border-slate-800/80 py-4 mt-8 bg-white/50 dark:bg-[#0B132B]/50 text-center text-xs text-slate-500 dark:text-slate-400">
-        <div className="max-w-7xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-2">
-          <div>
-            <span>CareerCraft — Single-Page Resume Builder • </span>
+      <footer className="w-full border-t border-slate-200/80 dark:border-slate-800/80 py-4 mt-8 bg-white/50 dark:bg-[#0B132B]/50 text-xs text-slate-500 dark:text-slate-400">
+        <div className="max-w-7xl mx-auto px-4 grid grid-cols-1 md:grid-cols-3 items-center gap-2">
+          <div className="text-center md:text-left">
+            <span>CareerCraft — Single-Page Resume Builder</span>
+          </div>
+          <div className="text-center font-medium">
             <span>Created by </span>
             <a
               href="https://github.com/Khangulamgousamjat/CareerCraft.git"
               target="_blank"
               rel="noopener noreferrer"
-              className="font-semibold text-blue-600 dark:text-blue-400 hover:underline"
+              className="font-semibold text-blue-600 dark:text-blue-400 hover:underline inline-flex items-center gap-1"
             >
               Gous Khan
             </a>
           </div>
-          <div>
+          <div className="text-center md:text-right">
             <a
               href="https://github.com/Khangulamgousamjat/CareerCraft.git"
               target="_blank"

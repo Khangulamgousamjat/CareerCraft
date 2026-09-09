@@ -48,29 +48,25 @@ export default function LandingPage() {
 
       {/* Minimal Footer */}
       <footer className="border-t border-slate-200 dark:border-slate-800/80 py-8 bg-white/60 dark:bg-slate-900/60 transition-colors">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate-500 dark:text-slate-400">
-          <div className="flex flex-col sm:flex-row items-center gap-2 sm:gap-4">
-            <div className="flex items-center gap-2">
-              <span className="font-semibold text-slate-800 dark:text-slate-200">
-                CareerCraft
-              </span>
-              <span>—</span>
-              <span>Strictly One-Page Resume Builder.</span>
-            </div>
-            <span className="hidden sm:inline opacity-40">•</span>
-            <div>
-              Created by{" "}
-              <a
-                href="https://github.com/Khangulamgousamjat/CareerCraft.git"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="font-semibold text-blue-600 dark:text-blue-400 hover:underline inline-flex items-center gap-1"
-              >
-                Gous Khan
-              </a>
-            </div>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid grid-cols-1 md:grid-cols-3 items-center gap-4 text-xs text-slate-500 dark:text-slate-400">
+          <div className="text-center md:text-left">
+            <span className="font-semibold text-slate-800 dark:text-slate-200">
+              CareerCraft
+            </span>
+            <span> — Strictly One-Page Resume Builder.</span>
           </div>
-          <div className="flex items-center gap-4">
+          <div className="text-center font-medium">
+            <span>Created by </span>
+            <a
+              href="https://github.com/Khangulamgousamjat/CareerCraft.git"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="font-semibold text-blue-600 dark:text-blue-400 hover:underline inline-flex items-center gap-1"
+            >
+              Gous Khan
+            </a>
+          </div>
+          <div className="flex items-center justify-center md:justify-end gap-4">
             <a
               href="https://github.com/Khangulamgousamjat/CareerCraft.git"
               target="_blank"
