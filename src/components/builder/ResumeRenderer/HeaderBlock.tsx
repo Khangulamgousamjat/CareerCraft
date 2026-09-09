@@ -103,14 +103,27 @@ export function HeaderBlock({ personal, formatting, onSelectField }: HeaderBlock
       style={{ borderColor: accentColor }}
     >
       {hasPhoto ? (
-        /* Layout With Profile Photo */
-        <div className="flex items-center gap-4">
-          {/* Circular Headshot */}
+        /* Layout With Profile Photo on the RIGHT Side */
+        <div className="flex items-center justify-between gap-4">
+          {/* Candidate Text Block (Left Side) */}
+          <div className="flex-1 min-w-0">
+            {nameElement}
+            {titleElement}
+            {contactElement}
+          </div>
+
+          {/* Profile Photo (Right Side) */}
           <div
-            className="shrink-0 rounded-full overflow-hidden border-2 shadow-xs"
+            className={`shrink-0 overflow-hidden border-2 shadow-xs ml-3 ${
+              personal.photo?.shape === "rounded"
+                ? "rounded-xl"
+                : personal.photo?.shape === "rectangle"
+                ? "rounded-md"
+                : "rounded-full"
+            }`}
             style={{
-              width: "78px",
-              height: "78px",
+              width: personal.photo?.shape === "rectangle" ? "74px" : "78px",
+              height: personal.photo?.shape === "rectangle" ? "88px" : "78px",
               borderColor: accentColor,
             }}
           >
@@ -118,15 +131,8 @@ export function HeaderBlock({ personal, formatting, onSelectField }: HeaderBlock
             <img
               src={personal.photo!.dataUrl}
               alt={personal.name || "Profile headshot"}
-              className="w-full h-full object-cover rounded-full"
+              className="w-full h-full object-cover"
             />
-          </div>
-
-          {/* Candidate Text Block */}
-          <div className="flex-1 min-w-0">
-            {nameElement}
-            {titleElement}
-            {contactElement}
           </div>
         </div>
       ) : (

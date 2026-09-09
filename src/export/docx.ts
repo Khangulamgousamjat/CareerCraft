@@ -77,20 +77,25 @@ export async function exportToDocx(
   };
 
   // 1. Header: Profile Photo (if present)
+  const hasPhoto = Boolean(personal.photo?.dataUrl);
+  const textAlignment = hasPhoto ? AlignmentType.LEFT : AlignmentType.CENTER;
+
+  // 1. Header: Profile Photo (if present, aligned to the right side)
   if (personal.photo?.dataUrl) {
     try {
       const photoBytes = dataUrlToUint8Array(personal.photo.dataUrl);
+      const isRect = personal.photo.shape === "rectangle";
       paragraphs.push(
         new Paragraph({
-          alignment: AlignmentType.CENTER,
+          alignment: AlignmentType.RIGHT,
           spacing: { after: 40 },
           children: [
             new ImageRun({
               data: photoBytes,
               type: "png",
               transformation: {
-                width: 75,
-                height: 75,
+                width: isRect ? 70 : 75,
+                height: isRect ? 84 : 75,
               },
             }),
           ],
@@ -104,7 +109,7 @@ export async function exportToDocx(
   // Candidate Name
   paragraphs.push(
     new Paragraph({
-      alignment: AlignmentType.CENTER,
+      alignment: textAlignment,
       spacing: { after: 40 },
       children: [
         new TextRun({
@@ -122,7 +127,7 @@ export async function exportToDocx(
   if (personal.title) {
     paragraphs.push(
       new Paragraph({
-        alignment: AlignmentType.CENTER,
+        alignment: textAlignment,
         spacing: { after: 60 },
         children: [
           new TextRun({
@@ -150,7 +155,7 @@ export async function exportToDocx(
   if (contactParts.length > 0) {
     paragraphs.push(
       new Paragraph({
-        alignment: AlignmentType.CENTER,
+        alignment: textAlignment,
         spacing: { after: 120 },
         border: {
           bottom: {

@@ -3,18 +3,21 @@
 import React, { useState, useRef, useEffect, useCallback } from "react";
 import { Modal } from "@/components/ui/Modal";
 import { Button } from "@/components/ui/Button";
-import { ZoomIn, ZoomOut, RotateCcw, Check, X, Camera } from "lucide-react";
+import { ZoomIn, ZoomOut, RotateCcw, Check, Circle, Square, RectangleVertical } from "lucide-react";
+import { PhotoShape } from "@/types/resume";
 
 interface PhotoCropModalProps {
   isOpen: boolean;
   imageSrc: string | null;
+  initialShape?: PhotoShape;
   onClose: () => void;
-  onSaveCrop: (croppedDataUrl: string) => void;
+  onSaveCrop: (croppedDataUrl: string, shape: PhotoShape) => void;
 }
 
 export function PhotoCropModal({
   isOpen,
   imageSrc,
+  initialShape = "circle",
   onClose,
   onSaveCrop,
 }: PhotoCropModalProps) {
@@ -22,20 +25,24 @@ export function PhotoCropModal({
   const [position, setPosition] = useState({ x: 0, y: 0 });
   const [isDragging, setIsDragging] = useState(false);
   const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
+  const [shape, setShape] = useState<PhotoShape>(initialShape);
+  const [naturalSize, setNaturalSize] = useState<{ width: number; height: number } | null>(null);
 
   const containerRef = useRef<HTMLDivElement | null>(null);
   const imageRef = useRef<HTMLImageElement | null>(null);
 
-  // Mask dimensions
-  const MASK_SIZE = 220; // Size of circular crop window in px
+  // Mask dimensions (visual crop window)
+  const MASK_WIDTH = shape === "rectangle" ? 200 : 220;
+  const MASK_HEIGHT = shape === "rectangle" ? 240 : 220;
 
   // Reset state on open or imageSrc change
   useEffect(() => {
     if (isOpen) {
       setZoom(1);
       setPosition({ x: 0, y: 0 });
+      setShape(initialShape || "circle");
     }
-  }, [isOpen, imageSrc]);
+  }, [isOpen, imageSrc, initialShape]);
 
   // Drag handlers (Mouse + Touch)
   const handleMouseDown = (e: React.MouseEvent) => {
@@ -82,69 +89,121 @@ export function PhotoCropModal({
     const img = imageRef.current;
     if (!img) return;
 
-    // Output target size for crisp 1:1 circular headshot
-    const TARGET_SIZE = 400;
+    // Output target size for crisp headshot
+    const TARGET_WIDTH = shape === "rectangle" ? 360 : 400;
+    const TARGET_HEIGHT = shape === "rectangle" ? 432 : 400;
+
     const canvas = document.createElement("canvas");
-    canvas.width = TARGET_SIZE;
-    canvas.height = TARGET_SIZE;
+    canvas.width = TARGET_WIDTH;
+    canvas.height = TARGET_HEIGHT;
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
 
-    // Clear and create circular clipping mask
-    ctx.clearRect(0, 0, TARGET_SIZE, TARGET_SIZE);
+    // Clear canvas
+    ctx.clearRect(0, 0, TARGET_WIDTH, TARGET_HEIGHT);
+
+    // Apply clipping mask according to selected shape
     ctx.beginPath();
-    ctx.arc(TARGET_SIZE / 2, TARGET_SIZE / 2, TARGET_SIZE / 2, 0, Math.PI * 2);
+    if (shape === "circle") {
+      ctx.arc(TARGET_WIDTH / 2, TARGET_HEIGHT / 2, TARGET_WIDTH / 2, 0, Math.PI * 2);
+    } else if (shape === "rounded") {
+      if (typeof ctx.roundRect === "function") {
+        ctx.roundRect(0, 0, TARGET_WIDTH, TARGET_HEIGHT, 54);
+      } else {
+        ctx.rect(0, 0, TARGET_WIDTH, TARGET_HEIGHT);
+      }
+    } else {
+      // Rectangle with subtle modern rounded corner
+      if (typeof ctx.roundRect === "function") {
+        ctx.roundRect(0, 0, TARGET_WIDTH, TARGET_HEIGHT, 20);
+      } else {
+        ctx.rect(0, 0, TARGET_WIDTH, TARGET_HEIGHT);
+      }
+    }
     ctx.closePath();
     ctx.clip();
 
-    // The mask center is at (MASK_SIZE/2, MASK_SIZE/2)
-    // Scale ratio from preview mask to canvas
-    const scaleFactor = TARGET_SIZE / MASK_SIZE;
-
-    // Center coordinates
-    const centerX = TARGET_SIZE / 2;
-    const centerY = TARGET_SIZE / 2;
+    // Scale ratio from visual mask to export canvas
+    const scaleFactorX = TARGET_WIDTH / MASK_WIDTH;
+    const scaleFactorY = TARGET_HEIGHT / MASK_HEIGHT;
 
     ctx.save();
-    ctx.translate(centerX, centerY);
-    ctx.translate(position.x * scaleFactor, position.y * scaleFactor);
-    ctx.scale(zoom * scaleFactor, zoom * scaleFactor);
+    ctx.translate(TARGET_WIDTH / 2 + position.x * scaleFactorX, TARGET_HEIGHT / 2 + position.y * scaleFactorY);
+    ctx.scale(zoom, zoom);
 
-    // Draw the image centered at offset
-    const imgAspect = img.naturalWidth / img.naturalHeight;
-    let drawWidth = MASK_SIZE;
-    let drawHeight = MASK_SIZE;
-    if (imgAspect > 1) {
-      drawWidth = MASK_SIZE * imgAspect;
-    } else {
-      drawHeight = MASK_SIZE / imgAspect;
-    }
+    // Cover math: preserve natural aspect ratio
+    const natW = img.naturalWidth || TARGET_WIDTH;
+    const natH = img.naturalHeight || TARGET_HEIGHT;
+    const coverScale = Math.max(TARGET_WIDTH / natW, TARGET_HEIGHT / natH);
+    const drawW = natW * coverScale;
+    const drawH = natH * coverScale;
 
-    ctx.drawImage(
-      img,
-      -drawWidth / 2,
-      -drawHeight / 2,
-      drawWidth,
-      drawHeight
-    );
+    ctx.drawImage(img, -drawW / 2, -drawH / 2, drawW, drawH);
     ctx.restore();
 
     const dataUrl = canvas.toDataURL("image/png");
-    onSaveCrop(dataUrl);
+    onSaveCrop(dataUrl, shape);
     onClose();
-  }, [position, zoom, onSaveCrop, onClose]);
+  }, [position, zoom, shape, onSaveCrop, onClose, MASK_HEIGHT, MASK_WIDTH]);
 
   if (!isOpen || !imageSrc) return null;
+
+  // Visual cover calculations for preview
+  const natW = naturalSize?.width || MASK_WIDTH;
+  const natH = naturalSize?.height || MASK_HEIGHT;
+  const previewCoverScale = Math.max(MASK_WIDTH / natW, MASK_HEIGHT / natH);
+  const previewW = natW * previewCoverScale;
+  const previewH = natH * previewCoverScale;
 
   return (
     <Modal
       isOpen={isOpen}
       onClose={onClose}
       title="Adjust Your Profile Photo"
-      description="Drag to reposition and use the slider to zoom into your circular headshot."
+      description="Choose your photo shape, drag to position, and use the zoom slider."
       maxWidth="md"
     >
       <div className="flex flex-col items-center space-y-4 pt-1">
+        {/* Shape Selector Toggle */}
+        <div className="flex items-center gap-1.5 p-1 bg-slate-100 dark:bg-slate-800 rounded-lg text-xs">
+          <button
+            type="button"
+            onClick={() => setShape("circle")}
+            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md font-semibold transition-all cursor-pointer ${
+              shape === "circle"
+                ? "bg-white dark:bg-slate-900 text-blue-600 dark:text-blue-400 shadow-2xs"
+                : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200"
+            }`}
+          >
+            <Circle className="w-3.5 h-3.5" />
+            <span>Circle</span>
+          </button>
+          <button
+            type="button"
+            onClick={() => setShape("rounded")}
+            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md font-semibold transition-all cursor-pointer ${
+              shape === "rounded"
+                ? "bg-white dark:bg-slate-900 text-blue-600 dark:text-blue-400 shadow-2xs"
+                : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200"
+            }`}
+          >
+            <Square className="w-3.5 h-3.5" />
+            <span>Rounded</span>
+          </button>
+          <button
+            type="button"
+            onClick={() => setShape("rectangle")}
+            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md font-semibold transition-all cursor-pointer ${
+              shape === "rectangle"
+                ? "bg-white dark:bg-slate-900 text-blue-600 dark:text-blue-400 shadow-2xs"
+                : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200"
+            }`}
+          >
+            <RectangleVertical className="w-3.5 h-3.5" />
+            <span>Rectangle</span>
+          </button>
+        </div>
+
         {/* Interactive Crop Viewport */}
         <div
           ref={containerRef}
@@ -155,7 +214,7 @@ export function PhotoCropModal({
           onTouchStart={handleTouchStart}
           onTouchMove={handleTouchMove}
           onTouchEnd={handleTouchEnd}
-          className="relative w-72 h-72 rounded-2xl bg-slate-900 border border-slate-700 overflow-hidden cursor-grab active:cursor-grabbing select-none flex items-center justify-center touch-none shadow-inner"
+          className="relative w-72 h-72 rounded-2xl bg-slate-950 border border-slate-700 overflow-hidden cursor-grab active:cursor-grabbing select-none flex items-center justify-center touch-none shadow-inner"
         >
           {/* Loaded Image */}
           {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -164,31 +223,34 @@ export function PhotoCropModal({
             src={imageSrc}
             alt="Crop source"
             draggable={false}
-            className="max-w-none pointer-events-none transition-transform duration-75 ease-out"
+            onLoad={(e) => {
+              setNaturalSize({
+                width: e.currentTarget.naturalWidth,
+                height: e.currentTarget.naturalHeight,
+              });
+            }}
+            className="max-w-none pointer-events-none select-none transition-transform duration-75 ease-out"
             style={{
-              width: `${MASK_SIZE}px`,
-              height: `${MASK_SIZE}px`,
-              objectFit: "cover",
+              width: `${previewW}px`,
+              height: `${previewH}px`,
               transform: `translate(${position.x}px, ${position.y}px) scale(${zoom})`,
               transformOrigin: "center center",
             }}
           />
 
-          {/* Dark Vignette Overlay with Circular Cutout */}
+          {/* Guide Ring / Box with shadow mask */}
           <div
-            className="absolute inset-0 pointer-events-none"
+            className={`absolute pointer-events-none border-2 border-white/95 transition-all duration-200 ${
+              shape === "circle"
+                ? "rounded-full"
+                : shape === "rounded"
+                ? "rounded-2xl"
+                : "rounded-md"
+            }`}
             style={{
-              background:
-                "radial-gradient(circle 110px at center, transparent 110px, rgba(15, 23, 42, 0.75) 111px)",
-            }}
-          />
-
-          {/* Circular Visual Guide Ring */}
-          <div
-            className="absolute rounded-full pointer-events-none border-2 border-white/80 shadow-sm"
-            style={{
-              width: `${MASK_SIZE}px`,
-              height: `${MASK_SIZE}px`,
+              width: `${MASK_WIDTH}px`,
+              height: `${MASK_HEIGHT}px`,
+              boxShadow: "0 0 0 9999px rgba(15, 23, 42, 0.75)",
             }}
           />
         </div>

@@ -1,3 +1,5 @@
+export type PhotoShape = "circle" | "rounded" | "rectangle";
+
 export interface PersonalInfo {
   name: string;
   title: string;
@@ -9,6 +11,8 @@ export interface PersonalInfo {
   location?: string;
   photo?: {
     dataUrl: string;
+    rawUrl?: string;
+    shape?: PhotoShape;
   };
 }
 

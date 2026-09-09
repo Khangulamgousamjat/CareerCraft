@@ -3,7 +3,8 @@
 import React, { useState, useRef } from "react";
 import { useResume } from "@/context/ResumeContext";
 import { PhotoCropModal } from "@/components/builder/PhotoCropModal";
-import { Camera, Upload, Trash2, RefreshCw, AlertCircle } from "lucide-react";
+import { Camera, Upload, Trash2, RefreshCw, AlertCircle, Crop, Circle, Square, RectangleVertical } from "lucide-react";
+import { PhotoShape } from "@/types/resume";
 
 export function PersonalInfoForm() {
   const { resume, updatePersonal, setFocusedFieldId } = useResume();
@@ -68,8 +69,29 @@ export function PersonalInfoForm() {
     setErrorMessage(null);
   };
 
-  const handleSaveCroppedPhoto = (dataUrl: string) => {
-    updatePersonal("photo", { dataUrl });
+  const handleOpenCropModal = () => {
+    const src = personal.photo?.rawUrl || personal.photo?.dataUrl;
+    if (src) {
+      setRawImageSrc(src);
+      setIsCropOpen(true);
+    }
+  };
+
+  const handleShapeChange = (shape: PhotoShape) => {
+    if (personal.photo) {
+      updatePersonal("photo", {
+        ...personal.photo,
+        shape,
+      });
+    }
+  };
+
+  const handleSaveCroppedPhoto = (dataUrl: string, shape: PhotoShape) => {
+    updatePersonal("photo", {
+      dataUrl,
+      rawUrl: rawImageSrc || personal.photo?.rawUrl || dataUrl,
+      shape,
+    });
     setRawImageSrc(null);
     setIsCropOpen(false);
   };
@@ -79,7 +101,7 @@ export function PersonalInfoForm() {
       {/* Photo Upload & Crop Controls */}
       <div className="p-3 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/30">
         <div className="flex flex-col sm:flex-row items-center gap-4">
-          {/* Circular Thumbnail / Upload Trigger */}
+          {/* Thumbnail / Upload Trigger */}
           <div
             onDragOver={(e) => {
               e.preventDefault();
@@ -87,8 +109,20 @@ export function PersonalInfoForm() {
             }}
             onDragLeave={() => setIsDraggingOver(false)}
             onDrop={handleDrop}
-            onClick={() => fileInputRef.current?.click()}
-            className={`relative group w-20 h-20 rounded-full border-2 border-dashed flex flex-col items-center justify-center cursor-pointer transition-all duration-150 overflow-hidden shrink-0 shadow-2xs ${
+            onClick={() => {
+              if (personal.photo?.dataUrl) {
+                handleOpenCropModal();
+              } else {
+                fileInputRef.current?.click();
+              }
+            }}
+            className={`relative group border-2 border-dashed flex flex-col items-center justify-center cursor-pointer transition-all duration-150 overflow-hidden shrink-0 shadow-2xs ${
+              personal.photo?.shape === "rounded"
+                ? "w-20 h-20 rounded-2xl"
+                : personal.photo?.shape === "rectangle"
+                ? "w-18 h-22 rounded-xl"
+                : "w-20 h-20 rounded-full"
+            } ${
               isDraggingOver
                 ? "border-blue-500 bg-blue-50 dark:bg-blue-950/60 scale-105"
                 : personal.photo?.dataUrl
@@ -104,10 +138,10 @@ export function PersonalInfoForm() {
                   alt="Profile thumbnail"
                   className="w-full h-full object-cover"
                 />
-                {/* Hover overlay for quick change */}
-                <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center text-white">
-                  <RefreshCw className="w-4 h-4 mb-0.5" />
-                  <span className="text-[9px] font-semibold">Change</span>
+                {/* Hover overlay for quick crop */}
+                <div className="absolute inset-0 bg-black/55 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center text-white">
+                  <Crop className="w-4 h-4 mb-0.5" />
+                  <span className="text-[9px] font-semibold">Crop</span>
                 </div>
               </>
             ) : (
@@ -119,7 +153,7 @@ export function PersonalInfoForm() {
           </div>
 
           {/* Photo Actions & Guidance */}
-          <div className="flex-1 text-center sm:text-left space-y-1.5">
+          <div className="flex-1 text-center sm:text-left space-y-2">
             <div className="flex items-center justify-center sm:justify-start gap-2">
               <span className="text-xs font-bold text-slate-800 dark:text-slate-200">
                 Profile Photo (Optional)
@@ -132,27 +166,95 @@ export function PersonalInfoForm() {
             </div>
 
             <p className="text-[11px] text-slate-500 dark:text-slate-400 leading-snug">
-              JPG or PNG, max 5MB. Circular cropped preview appears on your resume header and all exports.
+              Positioned on the <span className="font-semibold text-slate-700 dark:text-slate-300">right side</span> of your header. Choose circle, rounded, or rectangle.
             </p>
 
-            <div className="flex flex-wrap items-center justify-center sm:justify-start gap-2 pt-0.5">
-              <button
-                type="button"
-                onClick={() => fileInputRef.current?.click()}
-                className="text-xs font-semibold px-3 py-1 rounded-md bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-slate-50 dark:hover:bg-slate-700/60 transition-colors cursor-pointer shadow-2xs inline-flex items-center gap-1.5"
-              >
-                <Upload className="w-3 h-3" />
-                <span>{personal.photo?.dataUrl ? "Change Photo" : "Upload Photo"}</span>
-              </button>
+            {/* Shape Chooser (when photo exists) */}
+            {personal.photo?.dataUrl && (
+              <div className="flex items-center justify-center sm:justify-start gap-1.5 pt-0.5">
+                <span className="text-[10px] font-semibold text-slate-500 dark:text-slate-400 mr-1">
+                  Shape:
+                </span>
+                <div className="inline-flex items-center bg-slate-200/80 dark:bg-slate-700/60 p-0.5 rounded-lg text-xs">
+                  <button
+                    type="button"
+                    onClick={() => handleShapeChange("circle")}
+                    className={`flex items-center gap-1 px-2 py-1 rounded-md text-[11px] font-medium transition-all cursor-pointer ${
+                      (personal.photo.shape || "circle") === "circle"
+                        ? "bg-white dark:bg-slate-900 text-blue-600 dark:text-blue-400 shadow-2xs font-semibold"
+                        : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200"
+                    }`}
+                  >
+                    <Circle className="w-3 h-3" />
+                    <span>Circle</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => handleShapeChange("rounded")}
+                    className={`flex items-center gap-1 px-2 py-1 rounded-md text-[11px] font-medium transition-all cursor-pointer ${
+                      personal.photo.shape === "rounded"
+                        ? "bg-white dark:bg-slate-900 text-blue-600 dark:text-blue-400 shadow-2xs font-semibold"
+                        : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200"
+                    }`}
+                  >
+                    <Square className="w-3 h-3" />
+                    <span>Rounded</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => handleShapeChange("rectangle")}
+                    className={`flex items-center gap-1 px-2 py-1 rounded-md text-[11px] font-medium transition-all cursor-pointer ${
+                      personal.photo.shape === "rectangle"
+                        ? "bg-white dark:bg-slate-900 text-blue-600 dark:text-blue-400 shadow-2xs font-semibold"
+                        : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200"
+                    }`}
+                  >
+                    <RectangleVertical className="w-3 h-3" />
+                    <span>Rectangle</span>
+                  </button>
+                </div>
+              </div>
+            )}
 
-              {personal.photo?.dataUrl && (
+            {/* Action Buttons */}
+            <div className="flex flex-wrap items-center justify-center sm:justify-start gap-2 pt-0.5">
+              {personal.photo?.dataUrl ? (
+                <>
+                  <button
+                    type="button"
+                    onClick={handleOpenCropModal}
+                    className="text-xs font-semibold px-2.5 py-1 rounded-md bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-950/40 transition-colors cursor-pointer shadow-2xs inline-flex items-center gap-1.5"
+                  >
+                    <Crop className="w-3 h-3" />
+                    <span>Crop / Adjust</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => fileInputRef.current?.click()}
+                    className="text-xs font-medium px-2.5 py-1 rounded-md bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-slate-100 hover:bg-slate-50 dark:hover:bg-slate-700/60 transition-colors cursor-pointer shadow-2xs inline-flex items-center gap-1.5"
+                  >
+                    <Upload className="w-3 h-3" />
+                    <span>Change</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={handleRemovePhoto}
+                    className="text-xs font-medium px-2 py-1 rounded-md text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/40 transition-colors cursor-pointer inline-flex items-center gap-1"
+                  >
+                    <Trash2 className="w-3 h-3" />
+                    <span>Remove</span>
+                  </button>
+                </>
+              ) : (
                 <button
                   type="button"
-                  onClick={handleRemovePhoto}
-                  className="text-xs font-medium px-2.5 py-1 rounded-md text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/40 transition-colors cursor-pointer inline-flex items-center gap-1"
+                  onClick={() => fileInputRef.current?.click()}
+                  className="text-xs font-semibold px-3 py-1.5 rounded-md bg-blue-600 text-white hover:bg-blue-700 transition-colors cursor-pointer shadow-2xs inline-flex items-center gap-1.5"
                 >
-                  <Trash2 className="w-3 h-3" />
-                  <span>Remove</span>
+                  <Upload className="w-3.5 h-3.5" />
+                  <span>Upload Photo</span>
                 </button>
               )}
             </div>
@@ -181,6 +283,7 @@ export function PersonalInfoForm() {
       <PhotoCropModal
         isOpen={isCropOpen}
         imageSrc={rawImageSrc}
+        initialShape={personal.photo?.shape || "circle"}
         onClose={() => {
           setIsCropOpen(false);
           setRawImageSrc(null);
